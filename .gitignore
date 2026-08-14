@@ -30,9 +30,16 @@ test-results/
 *.tsbuildinfo
 next-env.d.ts
 
-# docs / planning (not needed for dev)
+# docs / planning / tools
 docs/
 _archive/
 CLAUDE.md
+.bkit/
+.obsidian/
+.vite/
+.claude/
+
+# markdown (README.md 제외)
 *.md
+!README.md
 !src/**/*.md
