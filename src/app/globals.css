@@ -1,0 +1,175 @@
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css');
+@import 'tailwindcss';
+
+/* ─── D_QPUaaS Brand Theme ─────────────────────────────────────────────── */
+:root {
+  --font-size: 16px;
+
+  /* Brand */
+  --primary:            #635ADC;
+  --primary-foreground: #ffffff;
+  --primary-10:         rgb(243,242,255);
+  --primary-20:         rgb(230,228,255);
+  --primary-80:         rgb(62,57,160);
+
+  /* Neutrals */
+  --background:         rgb(249,249,249);
+  --foreground:         rgb(42,42,42);
+  --card:               #ffffff;
+  --card-foreground:    rgb(42,42,42);
+  --popover:            #ffffff;
+  --popover-foreground: rgb(42,42,42);
+
+  /* Semantic */
+  --secondary:          rgb(243,242,255);
+  --secondary-foreground: #635ADC;
+  --muted:              rgb(242,242,242);
+  --muted-foreground:   rgb(119,119,119);
+  --accent:             rgb(249,249,249);
+  --accent-foreground:  rgb(42,42,42);
+  --destructive:        rgb(239,68,68);
+  --destructive-foreground: #ffffff;
+  --border:             rgb(242,242,242);
+  --input:              transparent;
+  --input-background:   #f3f3f5;
+  --ring:               #635ADC;
+
+  /* Semantic status colors */
+  --color-success:      rgb(34,197,94);
+  --color-success-bg:   rgb(240,253,244);
+  --color-danger:       rgb(239,68,68);
+  --color-danger-bg:    rgb(254,242,242);
+  --color-info:         rgb(36,142,213);
+  --color-info-bg:      rgb(211,232,247);
+  --color-warning:      rgb(255,177,68);
+  --color-warning-bg:   rgb(255,251,235);
+
+  /* Sidebar */
+  --sidebar:            #ffffff;
+  --sidebar-foreground: rgb(42,42,42);
+  --sidebar-border:     rgb(242,242,242);
+  --sidebar-primary:    #635ADC;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent:     rgb(243,242,255);
+  --sidebar-accent-foreground: #635ADC;
+  --sidebar-ring:       #635ADC;
+
+  /* Charts */
+  --chart-1: #635ADC;
+  --chart-2: rgb(34,197,94);
+  --chart-3: rgb(36,142,213);
+  --chart-4: rgb(255,177,68);
+  --chart-5: rgb(239,68,68);
+
+  /* Radius — 14px card baseline (design system RADIUS_CARD) */
+  --radius: 0.875rem;
+}
+
+.dark {
+  --background:         rgb(15,15,20);
+  --foreground:         rgb(240,240,245);
+  --card:               rgb(24,24,32);
+  --card-foreground:    rgb(240,240,245);
+  --popover:            rgb(24,24,32);
+  --popover-foreground: rgb(240,240,245);
+  --secondary:          rgb(30,28,50);
+  --secondary-foreground: rgb(160,155,230);
+  --muted:              rgb(30,30,40);
+  --muted-foreground:   rgb(140,140,160);
+  --accent:             rgb(30,28,50);
+  --accent-foreground:  rgb(240,240,245);
+  --border:             rgb(40,40,55);
+  --input:              rgb(40,40,55);
+  --sidebar:            rgb(18,18,26);
+  --sidebar-foreground: rgb(210,210,230);
+  --sidebar-border:     rgb(40,40,55);
+}
+
+@theme inline {
+  --color-background:   var(--background);
+  --color-foreground:   var(--foreground);
+  --color-card:         var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-primary:      var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-muted:        var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border:       var(--border);
+  --color-ring:         var(--ring);
+  --radius-sm:  calc(var(--radius) - 8px);
+  --radius-md:  calc(var(--radius) - 4px);
+  --radius-lg:  var(--radius);
+  --radius-xl:  calc(var(--radius) + 4px);
+}
+
+* {
+  border-color: var(--border);
+}
+
+button {
+  white-space: nowrap;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-size: var(--font-size);
+  font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Table — design system spec */
+.ds-table-wrap {
+  overflow: hidden;
+  border-radius: 10px;
+  background: white;
+  border: 1px solid rgb(242,242,242);
+}
+.ds-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.ds-table thead tr {
+  background: rgb(245,245,245);
+}
+.ds-table th {
+  padding: 10px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: rgb(145,145,145);
+  text-align: left;
+  border-bottom: 1px solid rgb(242,242,242);
+  white-space: nowrap;
+}
+.ds-table th:first-child { padding-left: 16px; }
+.ds-table th:last-child  { padding-right: 16px; }
+.ds-table td {
+  padding: 12px 12px;
+  font-size: 13px;
+  color: rgb(42,42,42);
+  border-bottom: 1px solid rgb(242,242,242);
+}
+.ds-table td:first-child { padding-left: 16px; }
+.ds-table td:last-child  { padding-right: 16px; }
+.ds-table tbody tr:last-child td { border-bottom: none; }
+.ds-table tbody tr {
+  background: white;
+  transition: background 0.1s;
+}
+.ds-table tbody tr:hover {
+  background: rgba(99,90,220,0.025);
+}
+
+/* Card hover — design system shadow */
+.card-hover {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07), 0 0 0 1px rgba(0,0,0,0.04);
+  transition: box-shadow 0.15s ease;
+}
+.card-hover:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.11), 0 0 0 1px rgba(99,90,220,0.3);
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

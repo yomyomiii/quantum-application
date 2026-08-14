@@ -1,0 +1,8 @@
+export type Phase = 'phase1' | 'phase2' | 'phase3'
+export type AlgorithmStatus = 'draft' | 'pending' | 'rejected' | 'published' | 'inactive'
+export type JobStatus = 'initiated' | 'estimate' | 'submitted' | 'running' | 'done' | 'failed' | 'cancelled'
+export type WorkspaceRole = 'owner' | 'admin' | 'member' | 'viewer'
+export type NotebookStatus = 'idle' | 'running' | 'error' | 'stopped'
+export type RequestType = 'project_create' | 'credit_change' | 'resource_change' | 'algo_register' | 'algo_report'
+export type RequestStatus = 'pending' | 'approved' | 'rejected'
+export type Persona = 'user' | 'admin'
