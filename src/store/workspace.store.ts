@@ -8,6 +8,8 @@ interface WorkspaceStore {
   workspaces: Workspace[]
   activeWorkspaceId: string
   setActiveWorkspace: (id: string) => void
+  updateWorkspace: (workspaceId: string, patch: { name?: string; description?: string }) => void
+  removeWorkspace: (workspaceId: string) => void
   inviteMember: (workspaceId: string, userId: string, role: WorkspaceRole) => void
   updateMemberRole: (workspaceId: string, userId: string, role: WorkspaceRole) => void
   removeMember: (workspaceId: string, userId: string) => void
@@ -18,6 +20,14 @@ export const useWorkspaceStore = create<WorkspaceStore>()((set) => ({
   activeWorkspaceId: 'ws_1',
 
   setActiveWorkspace: (id) => set({ activeWorkspaceId: id }),
+
+  updateWorkspace: (workspaceId, patch) => set((s) => ({
+    workspaces: s.workspaces.map((w) => w.id === workspaceId ? { ...w, ...patch } : w),
+  })),
+
+  removeWorkspace: (workspaceId) => set((s) => ({
+    workspaces: s.workspaces.filter((w) => w.id !== workspaceId),
+  })),
 
   inviteMember: (workspaceId, userId, role) => set((s) => ({
     workspaces: s.workspaces.map((w) => w.id === workspaceId

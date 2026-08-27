@@ -10,24 +10,30 @@ import { Dialog, DialogContent } from '@/components/ui/dialog'
 import { Command as CommandPrimitive, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem } from '@/components/ui/command'
 import { useMarketplaceStore } from '@/store/marketplace.store'
 import { useWorkspaceStore } from '@/store/workspace.store'
-
-const MOCK_NOTIFICATIONS = [
-  { id: '1', type: 'success', message: 'Grover Algorithm v2.1.0 승인 완료', time: '5분 전', read: false },
-  { id: '2', type: 'info', message: 'VQE Solver 실행 완료 (ws_1)', time: '1시간 전', read: false },
-  { id: '3', type: 'warning', message: 'ws_4 크레딧 500cr 미만', time: '3시간 전', read: true },
-  { id: '4', type: 'error', message: 'Bell State Algorithm 반려 — 설명 보완 필요', time: '1일 전', read: true },
-]
+import { usePersonaStore } from '@/store/persona.store'
 
 const typeIcon: Record<string, string> = { success: '✅', info: 'ℹ️', warning: '⚠️', error: '❌' }
+
+function relativeTime(iso: string): string {
+  const diff = Date.now() - new Date(iso).getTime()
+  const m = Math.floor(diff / 60000)
+  if (m < 1) return '방금 전'
+  if (m < 60) return `${m}분 전`
+  const h = Math.floor(m / 60)
+  if (h < 24) return `${h}시간 전`
+  return `${Math.floor(h / 24)}일 전`
+}
 
 export function Header() {
   const router = useRouter()
   const { activeWorkspaceId } = useWorkspaceStore()
+  const { currentUserId } = usePersonaStore()
   const [cmdOpen, setCmdOpen] = useState(false)
   const [notifOpen, setNotifOpen] = useState(false)
-  const { algorithms } = useMarketplaceStore()
+  const { algorithms, notifications, markNotificationsRead } = useMarketplaceStore()
 
-  const unreadCount = MOCK_NOTIFICATIONS.filter((n) => !n.read).length
+  const myNotifs = notifications.filter((n) => n.userId === currentUserId)
+  const unreadCount = myNotifs.filter((n) => !n.read).length
 
   // Cmd+K 키보드 단축키
   useEffect(() => {
@@ -76,18 +82,20 @@ export function Header() {
               )}
             </button>
           </PopoverTrigger>
-          <PopoverContent align="end" className="w-80 p-0">
+          <PopoverContent align="end" className="w-80 p-0" onOpenAutoFocus={() => { if (unreadCount > 0) markNotificationsRead(currentUserId) }}>
             <div className="flex items-center justify-between border-b border-[var(--border)] px-3 py-2">
               <span className="text-[13px] font-semibold">알림</span>
               {unreadCount > 0 && <span className="text-[11px] text-[var(--primary)]">읽지 않음 {unreadCount}</span>}
             </div>
             <div className="max-h-72 overflow-y-auto">
-              {MOCK_NOTIFICATIONS.map((n) => (
-                <div key={n.id} className={`flex gap-2.5 px-3 py-2.5 text-[12px] border-b border-[var(--border)] last:border-0 ${!n.read ? 'bg-[var(--primary-10)]' : ''}`}>
+              {myNotifs.length === 0 ? (
+                <p className="px-3 py-4 text-center text-[12px] text-[var(--muted-foreground)]">알림이 없습니다.</p>
+              ) : myNotifs.map((n) => (
+                <div key={n.id} className={`flex gap-2.5 px-3 py-2.5 text-[12px] border-b border-[var(--border)] last:border-0 ${!n.read ? 'bg-[var(--primary)]/5' : ''}`}>
                   <span>{typeIcon[n.type]}</span>
                   <div className="flex-1 min-w-0">
                     <p className="leading-snug">{n.message}</p>
-                    <p className="mt-0.5 text-[11px] text-[var(--muted-foreground)]">{n.time}</p>
+                    <p className="mt-0.5 text-[11px] text-[var(--muted-foreground)]">{relativeTime(n.createdAt)}</p>
                   </div>
                 </div>
               ))}
@@ -156,7 +164,7 @@ export function Header() {
                 {[
                   { label: '양자 작업 목록', href: '/jobs' },
                   { label: '마켓 플레이스', href: '/marketplace' },
-                  { label: '내 알고리즘', href: '/marketplace/my' },
+                  { label: '내 양자 알고리즘', href: '/marketplace/my' },
                   { label: '프로젝트 정보', href: `/projects/${activeWorkspaceId}` },
                 ].map((item) => (
                   <CommandItem key={item.href} onSelect={() => { router.push(item.href); setCmdOpen(false) }}>

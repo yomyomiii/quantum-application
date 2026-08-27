@@ -53,19 +53,31 @@ export interface JobResource {
   cpuPercent: number[]
   memoryMB: number[]
   gpuPercent: number[]
+  vramMB: number[]
   timestamps: string[]
   peakCpu: number
   peakMemoryMB: number
+  peakVramMB: number
   thresholdExceeded: boolean
 }
 
+export interface JobResultTimings {
+  total: number
+  compression: number
+  sample: number
+  apply: number
+  parse: number
+}
+
 export interface JobResult {
-  counts: Record<string, number>
-  circuitDepth: number
+  simulator: string
+  version: string
+  totalSamples: number
   fidelity: number | null
-  executionTimeMs: number
-  stateVector?: number[][]
-  probDistribution?: Record<string, number>
+  measurementCounts: Record<string, number>
+  measurementProbabilities: Record<string, number>
+  timings: JobResultTimings
+  circuitDepth: number
   rawOutput: string
   accuracy?: number
 }
@@ -76,12 +88,18 @@ export interface JobLog {
   timestamp: string
 }
 
+export interface EmojiReaction {
+  emoji: string
+  userIds: string[]
+}
+
 export interface JobComment {
   id: string
   userId: string
   content: string
-  emoji?: string
+  reactions: EmojiReaction[]
   createdAt: string
+  replyToUserId?: string
   thread: JobComment[]
 }
 

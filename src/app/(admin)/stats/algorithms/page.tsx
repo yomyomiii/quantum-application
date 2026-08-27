@@ -19,9 +19,9 @@ function kpiMock(period: Period) {
   const mult = period === '이번 달' ? 1 : period === '최근 3개월' ? 3 : period === '최근 6개월' ? 6 : 12
   return {
     total: 142,
+    views: Math.round(8432 * mult * (0.9 + Math.random() * 0.2)),
     runs: Math.round(3821 * mult * (0.9 + Math.random() * 0.2)),
     rating: 4.3,
-    newAlgos: Math.round(8 * mult),
   }
 }
 
@@ -31,8 +31,8 @@ function lineDataMock(period: Period) {
     const d = new Date(Date.now() - (Math.min(days, 60) - 1 - i) * 86400000)
     return {
       date: `${d.getMonth() + 1}/${d.getDate()}`,
-      전체: Math.floor(Math.random() * 150 + 50),
-      승인됨: Math.floor(Math.random() * 100 + 30),
+      조회수: Math.floor(Math.random() * 400 + 100),
+      실행수: Math.floor(Math.random() * 150 + 50),
     }
   })
 }
@@ -153,9 +153,9 @@ export default function AdminAlgorithmStatsPage() {
       <div className="grid grid-cols-4 gap-3">
         {[
           { label: '총 알고리즘', value: kpi.total.toLocaleString(), unit: '개' },
+          { label: `${period} 조회`, value: kpi.views.toLocaleString(), unit: '회' },
           { label: `${period} 실행`, value: kpi.runs.toLocaleString(), unit: '회' },
           { label: '평균 평점', value: kpi.rating.toFixed(1), unit: '★' },
-          { label: '신규 등록', value: `+${kpi.newAlgos}`, unit: '개' },
         ].map(({ label, value, unit }) => (
           <div key={label} className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-4 text-center">
             <p className="text-[11px] text-[var(--muted-foreground)]">{label}</p>
@@ -166,20 +166,54 @@ export default function AdminAlgorithmStatsPage() {
         ))}
       </div>
 
-      {/* 실행수 추이 (전체 너비) */}
-      <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-4">
-        <p className="mb-3 text-[13px] font-semibold">일별 실행수 추이</p>
-        <ResponsiveContainer width="100%" height={220}>
-          <LineChart data={lineData} margin={{ top: 4, right: 16, left: 0, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-            <XAxis dataKey="date" tick={{ fontSize: 10 }} tickLine={false} interval={Math.floor(lineData.length / 10)} />
-            <YAxis tick={{ fontSize: 10 }} tickLine={false} />
-            <Tooltip contentStyle={tooltipStyle} />
-            <Legend iconSize={10} wrapperStyle={{ fontSize: 11 }} />
-            <Line type="monotone" dataKey="전체" stroke="#3b82f6" strokeWidth={2} dot={false} />
-            <Line type="monotone" dataKey="승인됨" stroke="#635ADC" strokeWidth={2} dot={false} />
-          </LineChart>
-        </ResponsiveContainer>
+      {/* 라인차트 + 히트맵 (2열) */}
+      <div className="grid grid-cols-2 gap-4">
+        <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-4">
+          <p className="mb-3 text-[13px] font-semibold">일별 조회수·실행수 추이</p>
+          <ResponsiveContainer width="100%" height={220}>
+            <LineChart data={lineData} margin={{ top: 4, right: 16, left: 0, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+              <XAxis dataKey="date" tick={{ fontSize: 10 }} tickLine={false} interval={Math.floor(lineData.length / 10)} />
+              <YAxis tick={{ fontSize: 10 }} tickLine={false} />
+              <Tooltip contentStyle={tooltipStyle} />
+              <Legend iconSize={10} wrapperStyle={{ fontSize: 11 }} />
+              <Line type="monotone" dataKey="조회수" stroke="#3b82f6" strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="실행수" stroke="#635ADC" strokeWidth={2} dot={false} />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+
+        <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-4">
+          <p className="mb-3 text-[13px] font-semibold">요일 × 시간대별 실행 빈도</p>
+          <div className="overflow-x-auto">
+            <div className="inline-block min-w-max">
+              <div className="mb-1 flex gap-1 pl-8">
+                {HOURS.map((h) => (
+                  <div key={h} className="w-5 text-center text-[9px] text-[var(--muted-foreground)]">
+                    {h % 3 === 0 ? h : ''}
+                  </div>
+                ))}
+              </div>
+              {DAYS.map((day) => (
+                <div key={day} className="mb-1 flex items-center gap-1">
+                  <div className="w-7 text-right text-[11px] text-[var(--muted-foreground)]">{day}</div>
+                  {HOURS.map((h) => {
+                    const cell = heatmap.find((d) => d.day === day && d.hour === h)!
+                    return <HeatmapCell key={h} value={cell.value} max={heatmapMax} />
+                  })}
+                </div>
+              ))}
+              <div className="mt-3 flex items-center gap-2 pl-8 text-[11px] text-[var(--muted-foreground)]">
+                <span>낮음</span>
+                {[0.1, 0.3, 0.5, 0.7, 0.9].map((a) => (
+                  <div key={a} className="h-4 w-4 rounded-sm" style={{ backgroundColor: `rgba(99,90,220,${a})` }} />
+                ))}
+                <span>높음</span>
+              </div>
+            </div>
+          </div>
+          <p className="mt-3 text-[12px] text-[var(--muted-foreground)]">가장 많은 실행: 화요일 14:00</p>
+        </div>
       </div>
 
       {/* 카테고리 + SDK 분포 (2열) */}
@@ -189,7 +223,7 @@ export default function AdminAlgorithmStatsPage() {
           <div className="flex items-center gap-6">
             <ResponsiveContainer width={180} height={180}>
               <PieChart>
-                <Pie data={catData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} label={({ percent }) => `${(percent * 100).toFixed(0)}%`} labelLine={false}>
+                <Pie data={catData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80}>
                   {catData.map((_, i) => <PieCell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />)}
                 </Pie>
                 <Tooltip formatter={(v: number) => [`${v}%`, '']} contentStyle={tooltipStyle} />
@@ -219,39 +253,6 @@ export default function AdminAlgorithmStatsPage() {
             </BarChart>
           </ResponsiveContainer>
         </div>
-      </div>
-
-      {/* 시간대 히트맵 */}
-      <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-4">
-        <p className="mb-3 text-[13px] font-semibold">요일 × 시간대별 실행 빈도</p>
-        <div className="overflow-x-auto">
-          <div className="inline-block min-w-max">
-            <div className="mb-1 flex gap-1 pl-8">
-              {HOURS.map((h) => (
-                <div key={h} className="w-5 text-center text-[9px] text-[var(--muted-foreground)]">
-                  {h % 3 === 0 ? h : ''}
-                </div>
-              ))}
-            </div>
-            {DAYS.map((day) => (
-              <div key={day} className="mb-1 flex items-center gap-1">
-                <div className="w-7 text-right text-[11px] text-[var(--muted-foreground)]">{day}</div>
-                {HOURS.map((h) => {
-                  const cell = heatmap.find((d) => d.day === day && d.hour === h)!
-                  return <HeatmapCell key={h} value={cell.value} max={heatmapMax} />
-                })}
-              </div>
-            ))}
-            <div className="mt-3 flex items-center gap-2 pl-8 text-[11px] text-[var(--muted-foreground)]">
-              <span>낮음</span>
-              {[0.1, 0.3, 0.5, 0.7, 0.9].map((a) => (
-                <div key={a} className="h-4 w-4 rounded-sm" style={{ backgroundColor: `rgba(99,90,220,${a})` }} />
-              ))}
-              <span>높음</span>
-            </div>
-          </div>
-        </div>
-        <p className="mt-3 text-[12px] text-[var(--muted-foreground)]">가장 많은 실행: 화요일 14:00</p>
       </div>
 
       {/* Top 10 + 리더보드 (2열) */}

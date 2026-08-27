@@ -18,34 +18,36 @@ export function canTransition(from: JobStatus, to: JobStatus): boolean {
 }
 
 export function simulateJobRun(job: Job): JobResult {
-  const success = Math.random() > 0.2
-  if (!success) {
-    return {
-      counts: {},
-      circuitDepth: 0,
-      fidelity: null,
-      executionTimeMs: Math.floor(Math.random() * 500) + 100,
-      rawOutput: 'Error: Quantum decoherence detected',
-    }
-  }
   const shots = job.resource.shots
-  const p00 = 0.49 + (Math.random() - 0.5) * 0.05
-  const p11 = 1 - p00 - 0.02
-  const probDistribution: Record<string, number> = {
+  const p00 = parseFloat((0.49 + (Math.random() - 0.5) * 0.05).toFixed(6))
+  const p11 = parseFloat((1 - p00 - 0.02).toFixed(6))
+  const measurementCounts = {
     '00': Math.round(p00 * shots),
     '11': Math.round(p11 * shots),
     '01': Math.round(0.01 * shots),
     '10': Math.round(0.01 * shots),
   }
+  const measurementProbabilities = { '00': p00, '11': p11, '01': 0.01, '10': 0.01 }
+  const timings = {
+    total: parseFloat((Math.random() * 0.001 + 0.0002).toFixed(6)),
+    compression: parseFloat((Math.random() * 0.0001).toFixed(6)),
+    sample: parseFloat((Math.random() * 0.00001).toFixed(6)),
+    apply: parseFloat((Math.random() * 0.00003).toFixed(6)),
+    parse: parseFloat((Math.random() * 0.0005).toFixed(6)),
+  }
+  const fidelity = parseFloat((0.95 + Math.random() * 0.05).toFixed(6))
+  const circuitDepth = Math.floor(Math.random() * 20) + 5
   return {
-    counts: probDistribution,
-    circuitDepth: Math.floor(Math.random() * 20) + 5,
-    fidelity: 0.95 + Math.random() * 0.05,
-    executionTimeMs: Math.floor(Math.random() * 2000) + 500,
-    stateVector: [[0.707, 0], [0, 0], [0, 0], [0.707, 0]],
-    probDistribution,
-    rawOutput: `Counts: ${JSON.stringify(probDistribution)}`,
-    accuracy: 0.98 + Math.random() * 0.02,
+    simulator: 'MIMIQ-StateVector',
+    version: '0.26.0',
+    totalSamples: shots,
+    fidelity,
+    measurementCounts,
+    measurementProbabilities,
+    timings,
+    circuitDepth,
+    rawOutput: JSON.stringify({ simulator: 'MIMIQ-StateVector', version: '0.26.0', totalSamples: shots, fidelity, measurementCounts, measurementProbabilities, timings, circuitDepth }),
+    accuracy: parseFloat((0.98 + Math.random() * 0.02).toFixed(6)),
   }
 }
 

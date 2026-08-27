@@ -23,9 +23,9 @@ const CONFIG: Record<string, Config> = {
   success:   { label: 'Done',      bg: 'rgb(240,253,244)',  text: 'rgb(34,197,94)',   border: 'rgb(34,197,94)'   },
   // AlgorithmStatus
   draft:     { label: '임시저장', bg: 'rgb(242,242,242)',  text: 'rgb(119,119,119)', border: 'rgb(204,204,204)' },
-  pending:   { label: '검토중',   bg: 'rgb(255,251,235)',  text: 'rgb(255,177,68)',  border: 'rgb(255,177,68)'  },
+  pending:   { label: '승인 요청', bg: 'rgb(255,251,235)',  text: 'rgb(161,98,7)',    border: 'rgb(255,177,68)'  },
   rejected:  { label: '반려',     bg: 'rgb(254,242,242)',  text: 'rgb(239,68,68)',   border: 'rgb(239,68,68)'   },
-  published: { label: '게시중',   bg: 'rgb(240,253,244)',  text: 'rgb(34,197,94)',   border: 'rgb(34,197,94)'   },
+  published: { label: '활성',     bg: 'rgb(240,253,244)',  text: 'rgb(34,197,94)',   border: 'rgb(34,197,94)'   },
   inactive:  { label: '비활성',   bg: 'rgb(242,242,242)',  text: 'rgb(119,119,119)', border: 'rgb(204,204,204)' },
   // RequestStatus
   approved:  { label: '승인',     bg: 'rgb(240,253,244)',  text: 'rgb(34,197,94)',   border: 'rgb(34,197,94)'   },

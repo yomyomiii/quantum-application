@@ -39,6 +39,7 @@ function AlgorithmListRow({ a }: { a: Algorithm }) {
         <p className="truncate text-[13px] font-medium hover:text-[var(--primary)]">{a.title}</p>
         <p className="mt-0.5 truncate text-[12px] text-[var(--muted-foreground)]">{a.description}</p>
       </div>
+      <span className="shrink-0 text-[12px] text-[var(--muted-foreground)] w-[80px] truncate">{a.authorId}</span>
       <span className="shrink-0 text-[12px] text-[var(--muted-foreground)]">{a.sdk}</span>
       <span className="shrink-0 flex items-center gap-0.5 text-[12px]">
         <Star size={11} className="fill-amber-400 text-amber-400" />
@@ -50,6 +51,7 @@ function AlgorithmListRow({ a }: { a: Algorithm }) {
       <span className="shrink-0 flex items-center gap-0.5 text-[12px] text-[var(--muted-foreground)]">
         <Play size={11} /> {a.runCount.toLocaleString()}
       </span>
+      <span className="shrink-0 text-[12px] text-[var(--muted-foreground)]">{a.createdAt.slice(0, 10)}</span>
     </Link>
   )
 }

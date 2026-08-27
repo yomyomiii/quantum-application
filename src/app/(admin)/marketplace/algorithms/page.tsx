@@ -18,10 +18,11 @@ export default function AdminAlgorithmsPage() {
   const [pageSize, setPageSize] = useState(20)
 
   const list = useMemo(() => {
+    const published = algorithms.filter((a) => a.status === 'published' || a.status === 'inactive')
     const base = search
-      ? algorithms.filter((a) => a.title.toLowerCase().includes(search.toLowerCase()))
-      : algorithms
-    return [...base].sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+      ? published.filter((a) => a.title.toLowerCase().includes(search.toLowerCase()))
+      : published
+    return [...base].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
   }, [algorithms, search])
 
   const paged = useMemo(() => paginate(list, page, pageSize), [list, page, pageSize])
@@ -51,10 +52,10 @@ export default function AdminAlgorithmsPage() {
                 <tr className="">
                   <th className="whitespace-nowrap">알고리즘명</th>
                   <th className="w-20 whitespace-nowrap">SDK</th>
-                  <th className="text-center w-16 whitespace-nowrap">추천</th>
                   <th className="text-right w-20 whitespace-nowrap">조회수</th>
                   <th className="text-right w-20 whitespace-nowrap">실행수</th>
-                  <th className="w-24 whitespace-nowrap">등록일</th>
+                  <th className="w-24 whitespace-nowrap">수정일</th>
+                  <th className="text-center w-24 whitespace-nowrap">추천</th>
                   <th className="text-center w-32 whitespace-nowrap">활성</th>
                   <th className="text-right w-16 whitespace-nowrap">액션</th>
                 </tr>
@@ -67,19 +68,23 @@ export default function AdminAlgorithmsPage() {
                       <p className="text-[11px] text-[var(--muted-foreground)]">v{a.version} · {a.authorId}</p>
                     </td>
                     <td className="text-[var(--muted-foreground)] whitespace-nowrap">{a.sdk}</td>
+                    <td className="text-right text-[var(--muted-foreground)] whitespace-nowrap">{formatNumber(a.viewCount)}</td>
+                    <td className="text-right text-[var(--muted-foreground)] whitespace-nowrap">{formatNumber(a.runCount)}</td>
+                    <td className="text-[var(--muted-foreground)] whitespace-nowrap">{formatDate(a.updatedAt)}</td>
                     <td className="text-center">
                       <button
                         onClick={() => {
                           setRecommended(a.id, !a.isRecommended)
                           toast.success(a.isRecommended ? '추천 해제되었습니다.' : '추천 지정되었습니다.')
                         }}
+                        className="flex items-center gap-1 text-[12px]"
                       >
-                        <Star size={16} className={cn('transition-colors', a.isRecommended ? 'fill-amber-400 text-amber-400' : 'text-[var(--muted-foreground)]')} />
+                        <Star size={15} className={cn('transition-colors', a.isRecommended ? 'fill-amber-400 text-amber-400' : 'text-[var(--muted-foreground)]')} />
+                        <span className={cn('whitespace-nowrap', a.isRecommended ? 'text-amber-500' : 'text-[var(--muted-foreground)]')}>
+                          {a.isRecommended ? '추천 중' : '추천 지정'}
+                        </span>
                       </button>
                     </td>
-                    <td className="text-right text-[var(--muted-foreground)] whitespace-nowrap">{formatNumber(a.viewCount)}</td>
-                    <td className="text-right text-[var(--muted-foreground)] whitespace-nowrap">{formatNumber(a.runCount)}</td>
-                    <td className="text-[var(--muted-foreground)] whitespace-nowrap">{formatDate(a.createdAt)}</td>
                     <td className="">
                       <div className="flex items-center justify-center gap-2">
                         <Switch
@@ -97,9 +102,9 @@ export default function AdminAlgorithmsPage() {
                     <td className="text-right whitespace-nowrap">
                       <Link
                         href={`/marketplace/algorithms/${a.id}`}
-                        className="flex shrink-0 items-center gap-1 whitespace-nowrap rounded-md border border-[var(--border)] bg-[var(--card)] px-2.5 py-1 text-[12px] hover:bg-[var(--accent)] transition-colors"
+                        className="inline-flex items-center gap-1 whitespace-nowrap rounded-md border border-[var(--border)] bg-[var(--card)] px-2.5 py-1 text-[12px] hover:bg-[var(--accent)] transition-colors"
                       >
-                        <ArrowRight size={11} /> 상세
+                        상세 <ArrowRight size={11} />
                       </Link>
                     </td>
                   </tr>

@@ -1,12 +1,13 @@
 'use client'
 
-import { use, useState } from 'react'
+import { use, useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { ChevronLeft, ChevronRight, Eye, Play, Star, BookmarkPlus } from 'lucide-react'
 import { toast } from 'sonner'
 import { useMarketplaceStore } from '@/store/marketplace.store'
 import { usePersonaStore } from '@/store/persona.store'
+import { MOCK_USERS } from '@/mocks/users'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { RunDrawer } from './RunDrawer'
 
@@ -36,6 +37,11 @@ export default function AlgorithmDetailPage({ params }: Props) {
   const [reviewRating, setReviewRating] = useState(5)
 
   const algo = algorithms.find((a) => a.id === id)
+  const authorName = MOCK_USERS.find((u) => u.id === algo?.authorId)?.name ?? algo?.authorId ?? '—'
+
+  useEffect(() => {
+    if (algo) incrementViewCount(algo.id)
+  }, [algo?.id])
 
   if (!algo) {
     return (
@@ -47,7 +53,6 @@ export default function AlgorithmDetailPage({ params }: Props) {
   }
 
   function handleRunOpen() {
-    incrementViewCount(algo!.id)
     setRunOpen(true)
   }
 
@@ -81,11 +86,11 @@ export default function AlgorithmDetailPage({ params }: Props) {
           <div>
             <h1 className="text-[20px] font-bold leading-snug">{algo.title}</h1>
             <div className="mt-1.5 flex flex-wrap items-center gap-2 text-[12px] text-[var(--muted-foreground)]">
+              <span>버전: <strong className="text-[var(--foreground)]">v{algo.version}</strong></span>
+              <span>·</span>
               <span>SDK: <strong className="text-[var(--foreground)]">{algo.sdk}</strong></span>
               <span>·</span>
               <span>카테고리: <strong className="text-[var(--foreground)]">{algo.category}</strong></span>
-              <span>·</span>
-              <span>버전: <strong className="text-[var(--foreground)]">v{algo.version}</strong></span>
             </div>
           </div>
           <div className="flex shrink-0 gap-2">
@@ -93,10 +98,10 @@ export default function AlgorithmDetailPage({ params }: Props) {
               onClick={handleRunOpen}
               className="flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg bg-[var(--primary)] px-4 py-2 text-[13px] font-medium text-white hover:opacity-90 transition-opacity"
             >
-              <Play size={13} /> 노트북에서 실행 →
+              <Play size={13} /> 노트북에서 열기 →
             </button>
             <button
-              onClick={() => toast.success('내 알고리즘에 추가되었습니다.')}
+              onClick={() => toast.success('내 양자 알고리즘에 추가되었습니다.')}
               className="flex items-center gap-1.5 rounded-lg border border-[var(--border)] px-3 py-2 text-[13px] hover:bg-[var(--accent)] transition-colors"
             >
               <BookmarkPlus size={13} /> 추가
@@ -121,47 +126,50 @@ export default function AlgorithmDetailPage({ params }: Props) {
       </div>
 
       {/* 탭 */}
-      <Tabs defaultValue="overview">
+      <Tabs defaultValue="info">
         <TabsList>
-          <TabsTrigger value="overview">개요</TabsTrigger>
-          <TabsTrigger value="params">파라미터</TabsTrigger>
-          <TabsTrigger value="example">실행 예시</TabsTrigger>
+          <TabsTrigger value="info">개요</TabsTrigger>
           <TabsTrigger value="versions">버전 이력</TabsTrigger>
-          <TabsTrigger value="reviews">후기 및 평점</TabsTrigger>
+          <TabsTrigger value="reviews">평가</TabsTrigger>
         </TabsList>
 
-        {/* 개요 탭 */}
-        <TabsContent value="overview">
-          <div className="py-4">
-            <div className="prose prose-sm max-w-none rounded-lg border border-[var(--border)] bg-[var(--card)] p-5 text-[14px] leading-relaxed whitespace-pre-wrap">
-              {algo.description}
-            </div>
-            {algo.tags.length > 0 && (
-              <div className="mt-4 flex flex-wrap gap-1.5">
-                {algo.tags.map((tag) => (
-                  <span key={tag} className="rounded-full border border-[var(--border)] px-2.5 py-1 text-[12px] text-[var(--muted-foreground)]">
-                    {tag}
-                  </span>
-                ))}
+        {/* 정보 탭 */}
+        <TabsContent value="info">
+          <div className="py-4 space-y-4">
+            <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-5">
+              <p className="mb-3 text-[13px] font-semibold">정보</p>
+              <div className="grid grid-cols-[120px_1fr] gap-y-3 text-[13px]">
+                <span className="text-[var(--muted-foreground)]">알고리즘명</span><span className="font-medium">{algo.title}</span>
+                <span className="text-[var(--muted-foreground)]">버전</span><span className="font-mono">v{algo.version}</span>
+                <span className="text-[var(--muted-foreground)]">설명</span><span className="leading-relaxed">{algo.description || '—'}</span>
+                <span className="text-[var(--muted-foreground)]">SDK</span><span>{algo.sdk}</span>
+                <span className="text-[var(--muted-foreground)]">카테고리</span><span>{algo.category || '—'}</span>
+                <span className="text-[var(--muted-foreground)]">태그</span>
+                <div className="flex flex-wrap gap-1">
+                  {algo.tags.length > 0
+                    ? algo.tags.map((t) => <span key={t} className="rounded-full bg-[var(--muted)] px-2 py-0.5 text-[11px]">{t}</span>)
+                    : <span className="text-[var(--muted-foreground)]">—</span>}
+                </div>
+                <span className="text-[var(--muted-foreground)]">실행 유형</span><span>{algo.executionType}</span>
+                <span className="text-[var(--muted-foreground)]">등록자</span><span>{authorName}</span>
+                <span className="text-[var(--muted-foreground)]">등록일</span><span>{algo.publishedAt ? algo.publishedAt.slice(0, 10) : '—'}</span>
               </div>
-            )}
-          </div>
-        </TabsContent>
-
-        {/* 파라미터 탭 */}
-        <TabsContent value="params">
-          <div className="py-4 space-y-5">
-            <ParamTable title="입력 파라미터" params={algo.inputParams} />
-            <ParamTable title="출력 파라미터" params={algo.outputParams} />
-          </div>
-        </TabsContent>
-
-        {/* 실행 예시 탭 */}
-        <TabsContent value="example">
-          <div className="py-4">
-            <pre className="overflow-x-auto rounded-lg bg-[var(--muted)] p-5 font-mono text-[12px] leading-relaxed">
-              <code>{algo.exampleCode || '# 실행 예시가 없습니다.'}</code>
-            </pre>
+            </div>
+            <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-5 space-y-5">
+              <p className="text-[13px] font-semibold">실행 방법</p>
+              <ParamTable title="입력 파라미터" params={algo.inputParams} />
+              <ParamTable title="출력 파라미터" params={algo.outputParams} />
+              <div className="pt-2 border-t border-[var(--border)]">
+                <p className="mb-2 text-[13px] font-semibold">실행 예시 코드</p>
+                {algo.exampleCode ? (
+                  <pre className="max-h-40 overflow-auto rounded-md bg-[var(--muted)] px-4 py-3 text-[12px] leading-relaxed">
+                    <code>{algo.exampleCode}</code>
+                  </pre>
+                ) : (
+                  <p className="text-[12px] text-[var(--muted-foreground)]">실행 예시 코드 없음</p>
+                )}
+              </div>
+            </div>
           </div>
         </TabsContent>
 
@@ -190,7 +198,7 @@ export default function AlgorithmDetailPage({ params }: Props) {
           </div>
         </TabsContent>
 
-        {/* 후기 및 평점 탭 */}
+        {/* 평가 탭 */}
         <TabsContent value="reviews">
           <div className="py-4 space-y-5">
             {/* 평균 평점 게이지 */}

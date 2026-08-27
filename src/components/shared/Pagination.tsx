@@ -22,7 +22,7 @@ export function Pagination({ total, page, pageSize, onPageChange, onPageSizeChan
 
   return (
     <div className={cn('flex items-center justify-between pt-3', className)}>
-      <span className="text-[12px] text-[var(--muted-foreground)]">
+      <span className="pl-4 text-[12px] text-[var(--muted-foreground)]">
         총 <span className="font-medium text-[var(--foreground)]">{total.toLocaleString('ko-KR')}</span>건
       </span>
 

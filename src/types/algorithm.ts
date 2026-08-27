@@ -10,6 +10,7 @@ export interface Algorithm {
   category: string
   tags: string[]
   authorId: string
+  workspaceId?: string
   status: AlgorithmStatus
   isRecommended: boolean
   viewCount: number
@@ -17,22 +18,36 @@ export interface Algorithm {
   rating: number
   ratingCount: number
   createdAt: string
+  updatedAt: string
   publishedAt: string | null
   executionType: 'simulator' | 'hardware' | 'hybrid'
   inputParams: AlgorithmParam[]
   outputParams: AlgorithmParam[]
-  exampleCode: string
   codeAttached: boolean
   notebookId: string | null
+  codeSource?: 'file' | 'direct' | 'notebook'
+  fileName?: string
+  algorithmCode?: string
+  exampleCode?: string
   autoCheckResult: AutoCheckResult
   usageHistory: AlgorithmUsage[]
   reviews: AlgorithmReview[]
+  changeHistory: AlgorithmChange[]
+  rejectReason?: string
+  rejectedAt?: string
+}
+
+export interface AlgorithmChange {
+  userId: string
+  action: string
+  at: string
 }
 
 export interface AlgorithmVersion {
   version: string
   publishedAt: string
   changelog: string
+  deprecated?: boolean
 }
 
 export interface AlgorithmParam {

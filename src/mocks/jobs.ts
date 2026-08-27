@@ -69,12 +69,13 @@ function makeResource(qubits: number, exceeded = false, seed = 0): JobResource {
   const cpu = Array.from({ length: len }, () => Math.floor(r() * (exceeded ? 95 : 70) + 5))
   const mem = Array.from({ length: len }, () => Math.floor(r() * (exceeded ? 14000 : 8000) + 2000))
   const gpu = Array.from({ length: len }, () => Math.floor(r() * 60 + 10))
+  const vram = Array.from({ length: len }, () => Math.floor(r() * (exceeded ? 12000 : 6000) + 1000))
   const base = REF - len * 2000
   const timestamps = Array.from({ length: len }, (_, i) => new Date(base + i * 2000).toISOString())
   return {
     qubits, shots: 1024,
-    cpuPercent: cpu, memoryMB: mem, gpuPercent: gpu, timestamps,
-    peakCpu: Math.max(...cpu), peakMemoryMB: Math.max(...mem),
+    cpuPercent: cpu, memoryMB: mem, gpuPercent: gpu, vramMB: vram, timestamps,
+    peakCpu: Math.max(...cpu), peakMemoryMB: Math.max(...mem), peakVramMB: Math.max(...vram),
     thresholdExceeded: exceeded,
   }
 }
@@ -82,18 +83,45 @@ function makeResource(qubits: number, exceeded = false, seed = 0): JobResource {
 function makeResult(status: JobStatus, seed = 0): JobResult | null {
   if (status !== 'done') return null
   const r = seeded(seed + 2000)
-  const p00 = 0.48 + r() * 0.04
-  const p11 = 0.48 + r() * 0.04
-  const counts = { '00': Math.round(p00 * 1024), '11': Math.round(p11 * 1024), '01': Math.round(0.01 * 1024), '10': Math.round(0.01 * 1024) }
+  const p00 = parseFloat((0.48 + r() * 0.04).toFixed(6))
+  const p11 = parseFloat((0.48 + r() * 0.04).toFixed(6))
+  const measurementCounts = {
+    '00': Math.round(p00 * 1024),
+    '11': Math.round(p11 * 1024),
+    '01': Math.round(0.01 * 1024),
+    '10': Math.round(0.01 * 1024),
+  }
+  const measurementProbabilities = { '00': p00, '11': p11, '01': 0.01, '10': 0.01 }
+  const timings = {
+    total: parseFloat((r() * 0.001 + 0.0002).toFixed(6)),
+    compression: parseFloat((r() * 0.0001).toFixed(6)),
+    sample: parseFloat((r() * 0.00001).toFixed(6)),
+    apply: parseFloat((r() * 0.00003).toFixed(6)),
+    parse: parseFloat((r() * 0.0005).toFixed(6)),
+  }
+  const fidelity = parseFloat((0.92 + r() * 0.08).toFixed(6))
+  const circuitDepth = Math.floor(r() * 25) + 5
+  const rawOutput = JSON.stringify({
+    simulator: 'MIMIQ-StateVector',
+    version: '0.26.0',
+    totalSamples: 1024,
+    fidelity,
+    measurementCounts,
+    measurementProbabilities,
+    timings,
+    circuitDepth,
+  })
   return {
-    counts,
-    circuitDepth: Math.floor(r() * 25) + 5,
-    fidelity: 0.92 + r() * 0.08,
-    executionTimeMs: Math.floor(r() * 3000) + 200,
-    stateVector: [[0.707, 0], [0, 0], [0, 0], [0.707, 0]],
-    probDistribution: { '00': p00, '11': p11, '01': 0.01, '10': 0.01 },
-    rawOutput: `Counts: ${JSON.stringify(counts)}`,
-    accuracy: 0.96 + r() * 0.04,
+    simulator: 'MIMIQ-StateVector',
+    version: '0.26.0',
+    totalSamples: 1024,
+    fidelity,
+    measurementCounts,
+    measurementProbabilities,
+    timings,
+    circuitDepth,
+    rawOutput,
+    accuracy: parseFloat((0.96 + r() * 0.04).toFixed(6)),
   }
 }
 
@@ -117,14 +145,14 @@ const successDays = Array.from({ length: 120 }, (_, i) => Math.floor(seeded(i + 
 const failedDays  = Array.from({ length: 20 },  (_, i) => Math.floor(seeded(i + 4000)() * 60) + 1)
 const cancelDays  = Array.from({ length: 10 },  (_, i) => Math.floor(seeded(i + 5000)() * 30) + 1)
 
-function makeJob(idx: number, status: JobStatus, daysAgo: number): Job {
+function makeJob(idx: number, status: JobStatus, daysAgo: number, exceededOverride?: boolean): Job {
   const r = seeded(idx + 6000)
   const ui = idx % userEmails.length
   const ai = idx % algoIds.length
   const algoId = algoIds[ai]
   const providerEntry = PROVIDERS[idx % PROVIDERS.length]
   const qubits = [2, 4, 5, 8, 10, 20][idx % 6]
-  const exceeded = idx % 10 === 0
+  const exceeded = exceededOverride ?? (idx % 10 === 0)
   const submittedAt = status !== 'initiated' ? d(daysAgo, 9, idx + 1, 751) : null
   const startedAt = (status === 'running' || status === 'done' || status === 'failed') ? d(daysAgo, 9, idx + 3, 33) : null
   const completedAt = (status === 'done' || status === 'failed' || status === 'cancelled') ? d(daysAgo, 9, idx + 5, 65) : null
@@ -167,7 +195,7 @@ function makeJob(idx: number, status: JobStatus, daysAgo: number): Job {
     ],
     comments: idx % 7 === 0 ? [{
       id: `cmt_${idx}`, userId: `user_${(ui + 1) % userEmails.length + 1}`,
-      content: '결과 확인했습니다.', emoji: '👍',
+      content: '결과 확인했습니다.', reactions: [{ emoji: '👍', userIds: ['user_2'] }],
       createdAt: d(daysAgo - 0.2, 12, idx), thread: [],
     }] : [],
     changeHistory: [
@@ -183,8 +211,14 @@ export const MOCK_JOBS: Job[] = [
   ...Array.from({ length: 120 }, (_, i) => makeJob(i, 'done', successDays[i])),
   ...Array.from({ length: 20 },  (_, i) => makeJob(120 + i, 'failed', failedDays[i])),
   ...Array.from({ length: 10 },  (_, i) => makeJob(140 + i, 'cancelled', cancelDays[i])),
-  makeJob(150, 'running', 0),
+  // 첫 페이지 경우의 수 showcase (daysAgo=0, 최신 → 정렬 후 상위 노출 보장)
+  makeJob(150, 'running',   0),
   makeJob(151, 'submitted', 0),
-  makeJob(152, 'estimate', 0),
+  makeJob(152, 'estimate',  0),
   makeJob(153, 'initiated', 0),
+  makeJob(154, 'done',      0, false), // done + 정상
+  makeJob(155, 'done',      0, true),  // done + thresholdExceeded
+  makeJob(156, 'failed',    0, false), // failed + 정상
+  makeJob(157, 'failed',    0, true),  // failed + thresholdExceeded (3가지 동시)
+  makeJob(158, 'cancelled', 0),
 ]

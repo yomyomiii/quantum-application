@@ -12,7 +12,7 @@ export const MOCK_WORKSPACES: Workspace[] = [
     members: [
       { userId: 'user_1', role: 'owner', joinedAt: d(120) },
       { userId: 'user_2', role: 'admin', joinedAt: d(115) },
-      { userId: 'user_10', role: 'viewer', joinedAt: d(20) },
+      { userId: 'user_10', role: 'member', joinedAt: d(20) },
     ],
     credits: 15000,
     usedCredits: 6800,
@@ -26,7 +26,7 @@ export const MOCK_WORKSPACES: Workspace[] = [
     ownerId: 'user_2',
     members: [
       { userId: 'user_2', role: 'owner', joinedAt: d(110) },
-      { userId: 'user_3', role: 'viewer', joinedAt: d(100) },
+      { userId: 'user_3', role: 'member', joinedAt: d(100) },
       { userId: 'user_8', role: 'admin', joinedAt: d(43) },
     ],
     credits: 25000,
@@ -41,8 +41,8 @@ export const MOCK_WORKSPACES: Workspace[] = [
     ownerId: 'user_1',
     members: [
       { userId: 'user_1', role: 'owner', joinedAt: d(88) },
-      { userId: 'user_4', role: 'viewer', joinedAt: d(85) },
-      { userId: 'user_9', role: 'viewer', joinedAt: d(30) },
+      { userId: 'user_4', role: 'member', joinedAt: d(85) },
+      { userId: 'user_9', role: 'member', joinedAt: d(30) },
     ],
     credits: 10000,
     usedCredits: 4200,
@@ -57,7 +57,7 @@ export const MOCK_WORKSPACES: Workspace[] = [
     members: [
       { userId: 'user_5', role: 'owner', joinedAt: d(76) },
       { userId: 'user_6', role: 'admin', joinedAt: d(65) },
-      { userId: 'user_10', role: 'viewer', joinedAt: d(20) },
+      { userId: 'user_10', role: 'member', joinedAt: d(20) },
     ],
     credits: 50000,
     usedCredits: 31500,
@@ -71,8 +71,8 @@ export const MOCK_WORKSPACES: Workspace[] = [
     ownerId: 'user_6',
     members: [
       { userId: 'user_6', role: 'owner', joinedAt: d(54) },
-      { userId: 'user_7', role: 'viewer', joinedAt: d(54) },
-      { userId: 'user_8', role: 'viewer', joinedAt: d(43) },
+      { userId: 'user_7', role: 'member', joinedAt: d(54) },
+      { userId: 'user_8', role: 'member', joinedAt: d(43) },
     ],
     credits: 5000,
     usedCredits: 1200,

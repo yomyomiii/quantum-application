@@ -18,13 +18,16 @@ export function AlgorithmCard({ algorithm: a, className }: Props) {
         className,
       )}
     >
-      {/* SDK 배지 */}
-      <div className="mb-2 flex items-center justify-between">
+      {/* 카테고리 · SDK · 추천 배지 */}
+      <div className="mb-2 flex items-center gap-1.5">
+        <span className="rounded-full bg-teal-100 px-2 py-0.5 text-[11px] text-teal-700 dark:bg-teal-900/30 dark:text-teal-400">
+          {a.category}
+        </span>
         <span className="rounded-full bg-[var(--primary-10)] px-2 py-0.5 text-[11px] font-medium text-[var(--primary)]">
           {a.sdk}
         </span>
         {a.isRecommended && (
-          <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
+          <span className="ml-auto rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
             추천
           </span>
         )}
@@ -36,8 +39,13 @@ export function AlgorithmCard({ algorithm: a, className }: Props) {
       </h3>
 
       {/* 설명 (2줄) */}
-      <p className="mb-3 flex-1 text-[12px] leading-relaxed text-[var(--muted-foreground)] line-clamp-2">
+      <p className="mb-1.5 flex-1 text-[12px] leading-relaxed text-[var(--muted-foreground)] line-clamp-2">
         {a.description}
+      </p>
+
+      {/* 등록자·등록일 */}
+      <p className="mb-3 text-[11px] text-[var(--muted-foreground)]">
+        by {a.authorId} · {a.createdAt.slice(0, 10)}
       </p>
 
       {/* 평점·조회수·실행수 */}
@@ -57,17 +65,16 @@ export function AlgorithmCard({ algorithm: a, className }: Props) {
         </span>
       </div>
 
-      {/* 카테고리 + 태그 */}
-      <div className="flex flex-wrap gap-1">
-        <span className="rounded-full border border-[var(--border)] px-2 py-0.5 text-[11px] text-[var(--muted-foreground)]">
-          {a.category}
-        </span>
-        {a.tags.slice(0, 2).map((tag) => (
-          <span key={tag} className="rounded-full bg-[var(--muted)] px-2 py-0.5 text-[11px] text-[var(--muted-foreground)]">
-            {tag}
-          </span>
-        ))}
-      </div>
+      {/* 태그 (최대 2개) */}
+      {a.tags.length > 0 && (
+        <div className="flex flex-wrap gap-1">
+          {a.tags.slice(0, 2).map((tag) => (
+            <span key={tag} className="rounded-full bg-[var(--muted)] px-2 py-0.5 text-[11px] text-[var(--muted-foreground)]">
+              {tag}
+            </span>
+          ))}
+        </div>
+      )}
 
       {/* 호버 버튼 */}
       <div className="absolute inset-0 flex items-end justify-end rounded-xl p-4 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
